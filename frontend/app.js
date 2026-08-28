@@ -1,19 +1,41 @@
 const taskInput = document.getElementById("taskInput");
 const addTaskButton = document.getElementById("addTaskButton");
 const taskList = document.getElementById("taskList");
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 const taskCount = document.getElementById("taskCount");
 
+let tasks = [];
+
+const API_URL =
+    "https://ivg0e0r24h.execute-api.us-east-1.amazonaws.com/tasks";
 
 
-function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+// AWS'den task'ları getir
+async function loadTasks() {
+    try {
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error("Failed to load tasks");
+        }
+
+        const data = await response.json();
+
+        tasks = data;
+
+        renderTasks();
+
+    } catch (error) {
+        console.error("Error loading tasks:", error);
+    }
 }
 
+
+// Task'ları ekrana çiz
 function renderTasks() {
     taskList.innerHTML = "";
 
     tasks.forEach(function (task) {
+
         const listItem = document.createElement("li");
 
         const taskSpan = document.createElement("span");
@@ -24,28 +46,37 @@ function renderTasks() {
             taskSpan.style.textDecoration = "line-through";
         }
 
+
+        // Done / Undo button
         const doneButton = document.createElement("button");
-        doneButton.textContent = "Done";
+
+        doneButton.textContent =
+            task.completed ? "Undo" : "Done";
+
         doneButton.style.marginRight = "10px";
 
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-
         doneButton.addEventListener("click", function () {
+
             task.completed = !task.completed;
 
-            saveTasks();
             renderTasks();
         });
 
+
+        // Delete button
+        const deleteButton = document.createElement("button");
+
+        deleteButton.textContent = "Delete";
+
         deleteButton.addEventListener("click", function () {
+
             tasks = tasks.filter(function (item) {
                 return item.id !== task.id;
             });
 
-            saveTasks();
             renderTasks();
         });
+
 
         listItem.appendChild(taskSpan);
         listItem.appendChild(doneButton);
@@ -53,16 +84,21 @@ function renderTasks() {
 
         taskList.appendChild(listItem);
     });
-    
-    const completedTasks = tasks.filter(function (task) {
-    return task.completed;
-}).length;
 
-taskCount.textContent =
-    `Total: ${tasks.length} | Completed: ${completedTasks}`;
+
+    // Task sayıları
+    const completedTasks = tasks.filter(function (task) {
+        return task.completed;
+    }).length;
+
+    taskCount.textContent =
+        `Total: ${tasks.length} | Completed: ${completedTasks}`;
 }
 
+
+// Yeni task oluştur
 function addTask() {
+
     const taskText = taskInput.value.trim();
 
     if (taskText === "") {
@@ -77,54 +113,25 @@ function addTask() {
 
     tasks.push(newTask);
 
-    saveTasks();
     renderTasks();
 
     taskInput.value = "";
 }
 
+
+// Add Task button
 addTaskButton.addEventListener("click", addTask);
 
+
+// Enter ile task ekleme
 taskInput.addEventListener("keydown", function (event) {
+
     if (event.key === "Enter") {
         addTask();
     }
+
 });
 
-addTaskButton.addEventListener("click", function () {
 
-    const taskText = taskInput.value.trim();
-
-    if (taskText === "") {
-        return;
-    }
-
-    const listItem = document.createElement("li");
-
-    const taskSpan = document.createElement("span");
-    taskSpan.textContent = taskText;
-    taskSpan.style.marginRight = "20px";
-
-    const doneButton = document.createElement("button");
-    doneButton.textContent = task.completed ? "Undo" : "Done";
-    doneButton.style.marginRight = "5px";
-
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-
-    doneButton.addEventListener("click", function () {
-        taskSpan.style.textDecoration = "line-through";
-    });
-
-    deleteButton.addEventListener("click", function () {
-        listItem.remove();
-    });
-
-    listItem.appendChild(taskSpan);
-    listItem.appendChild(doneButton);
-    listItem.appendChild(deleteButton);
-
-    taskList.appendChild(listItem);
-
-    taskInput.value = "";
-});
+// Sayfa açıldığında AWS'den task'ları getir
+loadTasks();
