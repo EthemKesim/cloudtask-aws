@@ -90,14 +90,26 @@ function renderTasks() {
 
         deleteButton.textContent = "Delete";
 
-        deleteButton.addEventListener("click", function () {
-
-            tasks = tasks.filter(function (item) {
-                return item.id !== task.id;
-            });
-
-            renderTasks();
+        deleteButton.addEventListener("click", async function () {
+    try {
+        const response = await fetch(`${API_URL}/${task.id}`, {
+            method: "DELETE"
         });
+
+        if (!response.ok) {
+            throw new Error("Failed to delete task");
+        }
+
+        tasks = tasks.filter(function (item) {
+            return item.id !== task.id;
+        });
+
+        renderTasks();
+
+    } catch (error) {
+        console.error("Error deleting task:", error);
+    }
+});
 
 
         listItem.appendChild(taskSpan);
