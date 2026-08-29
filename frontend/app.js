@@ -55,12 +55,34 @@ function renderTasks() {
 
         doneButton.style.marginRight = "10px";
 
-        doneButton.addEventListener("click", function () {
+        doneButton.addEventListener("click", async function () {
+    const newCompletedValue = !task.completed;
 
-            task.completed = !task.completed;
-
-            renderTasks();
+    try {
+        const response = await fetch(`${API_URL}/${task.id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                completed: newCompletedValue
+            })
         });
+
+        if (!response.ok) {
+            throw new Error("Failed to update task");
+        }
+
+        const updatedTask = await response.json();
+
+        task.completed = updatedTask.completed;
+
+        renderTasks();
+
+    } catch (error) {
+        console.error("Error updating task:", error);
+    }
+});
 
 
         // Delete button
@@ -96,9 +118,7 @@ function renderTasks() {
 }
 
 
-// Yeni task oluştur
-function addTask() {
-
+async function addTask() {
     const taskText = taskInput.value.trim();
 
     if (taskText === "") {
@@ -106,16 +126,35 @@ function addTask() {
     }
 
     const newTask = {
-        id: crypto.randomUUID(),
+        id: Date.now().toString(),
         text: taskText,
         completed: false
     };
 
-    tasks.push(newTask);
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newTask)
+        });
 
-    renderTasks();
+        if (!response.ok) {
+            throw new Error("Failed to create task");
+        }
 
-    taskInput.value = "";
+        const createdTask = await response.json();
+
+        tasks.push(createdTask);
+
+        renderTasks();
+
+        taskInput.value = "";
+
+    } catch (error) {
+        console.error("Error creating task:", error);
+    }
 }
 
 
