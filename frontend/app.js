@@ -11,6 +11,7 @@ const CLIENT_ID =
 const REDIRECT_URI =
     "https://d3uuyg0mq27sk6.cloudfront.net";
 
+const logoutButton = document.getElementById("logoutButton");
 
     function generateCodeVerifier() {
     const array = new Uint8Array(32);
@@ -96,7 +97,17 @@ function getAccessToken() {
     return sessionStorage.getItem("access_token");
 }
 
+function logout() {
+    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem("code_verifier");
 
+    const logoutUrl =
+        `${COGNITO_DOMAIN}/logout` +
+        `?client_id=${CLIENT_ID}` +
+        `&logout_uri=${encodeURIComponent(REDIRECT_URI)}`;
+
+    window.location.href = logoutUrl;
+}
 
 let tasks = [];
 
@@ -286,6 +297,8 @@ taskInput.addEventListener("keydown", function (event) {
     }
 
 });
+
+logoutButton.addEventListener("click", logout);
 
 async function startApp() {
     await handleCallback();
