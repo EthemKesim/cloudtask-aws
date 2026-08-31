@@ -158,16 +158,16 @@ function renderTasks() {
     const newCompletedValue = !task.completed;
 
     try {
-        const response = await fetch(`${API_URL}/${task.id}`, {
-    method: "PATCH",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${getAccessToken()}`
-    },
-    body: JSON.stringify({
-        completed: newCompletedValue
-    })
-});
+    const response = await fetch(`${API_URL}/${task.taskId}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${getAccessToken()}`
+        },
+        body: JSON.stringify({
+            completed: newCompletedValue
+        })
+    });
 
         if (!response.ok) {
             throw new Error("Failed to update task");
@@ -192,7 +192,7 @@ function renderTasks() {
 
         deleteButton.addEventListener("click", async function () {
     try {
-        const response = await fetch(`${API_URL}/${task.id}`, {
+        const response = await fetch(`${API_URL}/${task.taskId}`, {
     method: "DELETE",
     headers: {
         "Authorization": `Bearer ${getAccessToken()}`
@@ -204,7 +204,7 @@ function renderTasks() {
         }
 
         tasks = tasks.filter(function (item) {
-            return item.id !== task.id;
+            return item.taskId !== task.taskId;
         });
 
         renderTasks();
@@ -241,10 +241,10 @@ async function addTask() {
     }
 
     const newTask = {
-        id: Date.now().toString(),
-        text: taskText,
-        completed: false
-    };
+    taskId: Date.now().toString(),
+    text: taskText,
+    completed: false
+};
 
     try {
         const response = await fetch(API_URL, {
