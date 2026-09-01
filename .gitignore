@@ -4,3 +4,12 @@ __pycache__/
 *.pyc
 venv/
 .vscode/
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+infrastructure/lambda_function.zip
