@@ -187,3 +187,5 @@ def lambda_handler(event, context):
                 "message": "Internal server error"
             })
         }
+
+# CloudTask backend deployed with GitHub Actions
