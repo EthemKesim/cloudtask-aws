@@ -18,4 +18,11 @@ resource "aws_lambda_function" "api" {
   memory_size = 128
 
   architectures = ["x86_64"]
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash
+    ]
+  }
 }
