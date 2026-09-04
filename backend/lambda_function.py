@@ -7,6 +7,12 @@ table = dynamodb.Table("CloudTaskTasksV2")
 
 def lambda_handler(event, context):
 
+    # TEMPORARY: CloudWatch alarm test
+    # Lambda Console'dan {"forceError": true} gönderildiğinde
+    # intentionally unhandled exception oluşturur.
+    if event.get("forceError") is True:
+        raise Exception("Forced CloudWatch test error")
+
     try:
         # HTTP method bilgisini al
         method = event["requestContext"]["http"]["method"]
@@ -167,7 +173,6 @@ def lambda_handler(event, context):
         }
 
     except json.JSONDecodeError:
-        # Body geçerli JSON değilse
         print("Invalid JSON body")
 
         return {
@@ -178,7 +183,6 @@ def lambda_handler(event, context):
         }
 
     except Exception as error:
-        # Beklemediğimiz bütün backend hataları
         print("Unexpected error:", str(error))
 
         return {
@@ -187,5 +191,6 @@ def lambda_handler(event, context):
                 "message": "Internal server error"
             })
         }
+
 
 # CloudTask backend deployed with GitHub Actions
