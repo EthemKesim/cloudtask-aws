@@ -7,12 +7,6 @@ table = dynamodb.Table("CloudTaskTasksV2")
 
 def lambda_handler(event, context):
 
-    # TEMPORARY: CloudWatch alarm test
-    # Lambda Console'dan {"forceError": true} gönderildiğinde
-    # intentionally unhandled exception oluşturur.
-    if event.get("forceError") is True:
-        raise Exception("Forced CloudWatch test error")
-
     try:
         # HTTP method bilgisini al
         method = event["requestContext"]["http"]["method"]
