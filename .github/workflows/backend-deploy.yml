@@ -23,7 +23,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::833090513321:role/cloudtask-github-actions
+          role-to-assume: arn:aws:iam::833090513321:role/cloudtask-backend-deploy
           aws-region: us-east-1
 
       - name: Package Lambda
