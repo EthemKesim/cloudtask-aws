@@ -3,6 +3,10 @@ resource "aws_cloudwatch_log_group" "lambda" {
   retention_in_days = 14
 }
 
+# --------------------------------------------------
+# Lambda Errors Alarm
+# --------------------------------------------------
+
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_name        = "cloudtask-lambda-errors"
   alarm_description = "Triggers when CloudTask Lambda reports errors."
@@ -31,6 +35,10 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
     aws_sns_topic.cloudtask_alerts.arn
   ]
 }
+
+# --------------------------------------------------
+# Lambda Duration Alarm
+# --------------------------------------------------
 
 resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
   alarm_name        = "cloudtask-lambda-duration"
@@ -61,6 +69,10 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
   ]
 }
 
+# --------------------------------------------------
+# Lambda Throttles Alarm
+# --------------------------------------------------
+
 resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
   alarm_name        = "cloudtask-lambda-throttles"
   alarm_description = "Triggers when CloudTask Lambda is throttled."
@@ -90,15 +102,9 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
   ]
 }
 
-resource "aws_sns_topic" "cloudtask_alerts" {
-  name = "cloudtask-alerts"
-}
-
-resource "aws_sns_topic_subscription" "email" {
-  topic_arn = aws_sns_topic.cloudtask_alerts.arn
-  protocol  = "email"
-  endpoint  = "kesimethem@gmail.com"
-}
+# --------------------------------------------------
+# API Gateway 5xx Alarm
+# --------------------------------------------------
 
 resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
   alarm_name        = "cloudtask-api-gateway-5xx"
@@ -127,4 +133,130 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
   ok_actions = [
     aws_sns_topic.cloudtask_alerts.arn
   ]
+}
+
+# --------------------------------------------------
+# SNS Alerts
+# --------------------------------------------------
+
+resource "aws_sns_topic" "cloudtask_alerts" {
+  name = "cloudtask-alerts"
+}
+
+resource "aws_sns_topic_subscription" "email" {
+  topic_arn = aws_sns_topic.cloudtask_alerts.arn
+  protocol  = "email"
+  endpoint  = "kesimethem@gmail.com"
+}
+
+# --------------------------------------------------
+# CloudWatch Dashboard
+# --------------------------------------------------
+
+resource "aws_cloudwatch_dashboard" "cloudtask" {
+  dashboard_name = "CloudTask-Monitoring"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "metric"
+        x      = 0
+        y      = 0
+        width  = 12
+        height = 6
+
+        properties = {
+          title  = "Lambda Errors"
+          region = "us-east-1"
+          view   = "timeSeries"
+          stat   = "Sum"
+          period = 300
+
+          metrics = [
+            [
+              "AWS/Lambda",
+              "Errors",
+              "FunctionName",
+              aws_lambda_function.api.function_name
+            ]
+          ]
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 12
+        y      = 0
+        width  = 12
+        height = 6
+
+        properties = {
+          title  = "Lambda Duration"
+          region = "us-east-1"
+          view   = "timeSeries"
+          stat   = "Average"
+          period = 300
+
+          metrics = [
+            [
+              "AWS/Lambda",
+              "Duration",
+              "FunctionName",
+              aws_lambda_function.api.function_name
+            ]
+          ]
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 0
+        y      = 6
+        width  = 12
+        height = 6
+
+        properties = {
+          title  = "Lambda Throttles"
+          region = "us-east-1"
+          view   = "timeSeries"
+          stat   = "Sum"
+          period = 300
+
+          metrics = [
+            [
+              "AWS/Lambda",
+              "Throttles",
+              "FunctionName",
+              aws_lambda_function.api.function_name
+            ]
+          ]
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 12
+        y      = 6
+        width  = 12
+        height = 6
+
+        properties = {
+          title  = "API Gateway 5xx Errors"
+          region = "us-east-1"
+          view   = "timeSeries"
+          stat   = "Sum"
+          period = 300
+
+          metrics = [
+            [
+              "AWS/ApiGateway",
+              "5xx",
+              "ApiId",
+              aws_apigatewayv2_api.cloudtask.id
+            ]
+          ]
+        }
+      }
+    ]
+  })
 }
