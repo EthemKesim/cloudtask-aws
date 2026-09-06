@@ -29,6 +29,14 @@ jobs:
       - name: Check Python syntax
         run: |
           python3 -m py_compile backend/lambda_function.py
+    
+      - name: Install backend dependencies
+        run: |
+          python3 -m pip install -r backend/requirements.txt
+
+      - name: Run backend unit tests
+        run: |
+          python3 -m unittest backend/tests/test_lambda.py
 
       - name: Package Lambda
         run: |

@@ -12,4 +12,7 @@ venv/
 *.tfvars.json
 crash.log
 crash.*.log
+infrastructure/lambda_function.zip.venv/
+
+.venv/
 infrastructure/lambda_function.zip
