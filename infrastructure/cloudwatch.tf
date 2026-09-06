@@ -99,3 +99,32 @@ resource "aws_sns_topic_subscription" "email" {
   protocol  = "email"
   endpoint  = "kesimethem@gmail.com"
 }
+
+resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
+  alarm_name        = "cloudtask-api-gateway-5xx"
+  alarm_description = "Triggers when CloudTask API Gateway reports 5xx errors."
+
+  namespace   = "AWS/ApiGateway"
+  metric_name = "5xx"
+  statistic   = "Sum"
+
+  period             = 300
+  evaluation_periods = 1
+  threshold          = 1
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    ApiId = aws_apigatewayv2_api.api.id
+  }
+
+  treat_missing_data = "notBreaching"
+
+  alarm_actions = [
+    aws_sns_topic.cloudtask_alerts.arn
+  ]
+
+  ok_actions = [
+    aws_sns_topic.cloudtask_alerts.arn
+  ]
+}
