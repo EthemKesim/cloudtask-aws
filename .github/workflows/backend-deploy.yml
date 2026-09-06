@@ -25,6 +25,10 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::833090513321:role/cloudtask-backend-deploy
           aws-region: us-east-1
+      
+      - name: Check Python syntax
+        run: |
+          python3 -m py_compile backend/lambda_function.py
 
       - name: Package Lambda
         run: |
