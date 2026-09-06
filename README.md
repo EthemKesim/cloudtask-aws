@@ -4,7 +4,13 @@ CloudTask is a serverless task management web application built as a hands-on pr
 
 The application allows authenticated users to create, view, update, complete, and delete their own tasks through a fully serverless AWS architecture.
 
+---
+
 ## Architecture
+
+### Architecture Diagram
+
+➡️ [View the detailed CloudTask AWS Architecture Diagram](docs/architecture.md)
 
 ```text
                          User
@@ -15,7 +21,6 @@ The application allows authenticated users to create, view, update, complete, an
                            ▼
                     Private S3 Bucket
                     (Static Frontend)
-                           │
                            │
                            ▼
                       API Gateway
@@ -29,11 +34,11 @@ The application allows authenticated users to create, view, update, complete, an
                                   │
                                   ▼
                               DynamoDB
+```
 
+### Monitoring & Alerting
 
-Monitoring & Alerting
-──────────────────────────────────────
-
+```text
 Lambda
    │
    ├──────────► CloudWatch Logs
@@ -45,11 +50,11 @@ Lambda
                        │
                        ▼
                  Email Alert
+```
 
+### Infrastructure & CI/CD
 
-Infrastructure & CI/CD
-──────────────────────────────────────
-
+```text
 GitHub
    │
    ├────────► Terraform CI
@@ -68,6 +73,8 @@ GitHub
                  AWS
 ```
 
+---
+
 ## AWS Services
 
 - **Amazon S3** — Hosts the static frontend in a private bucket
@@ -79,9 +86,11 @@ GitHub
 - **Amazon CloudWatch** — Provides Lambda logging and error monitoring
 - **Amazon SNS** — Sends email notifications when alarms are triggered
 - **AWS IAM** — Controls permissions between AWS services and CI/CD roles
-- **AWS IAM OIDC** — Allows GitHub Actions to authenticate to AWS without long-lived AWS credentials
+- **AWS IAM OIDC** — Allows GitHub Actions to authenticate to AWS without long-lived credentials
 - **Terraform** — Provisions and manages AWS infrastructure
 - **GitHub Actions** — Performs Terraform CI validation and infrastructure deployment
+
+---
 
 ## Features
 
@@ -100,6 +109,8 @@ GitHub
 - Terraform validation and planning with GitHub Actions
 - AWS authentication from GitHub Actions using OIDC
 - Separate IAM roles for CI and infrastructure deployment
+
+---
 
 ## Infrastructure as Code
 
@@ -138,6 +149,8 @@ terraform plan
 
 Infrastructure changes should always be reviewed through a Terraform plan before they are applied.
 
+---
+
 ## CI/CD
 
 The project uses GitHub Actions to validate and deploy Terraform infrastructure.
@@ -170,13 +183,11 @@ terraform validate
 terraform plan
 ```
 
-The workflow verifies that Terraform configuration is correctly formatted, valid, and synchronized with the AWS infrastructure.
+The CI workflow verifies that the Terraform configuration is correctly formatted, valid, and synchronized with the deployed AWS infrastructure.
 
 ### Terraform Apply
 
 Infrastructure deployment is handled through a separate manually triggered GitHub Actions workflow.
-
-The deployment process performs:
 
 ```text
 Checkout Repository
@@ -203,15 +214,15 @@ Terraform Apply
 AWS Infrastructure
 ```
 
-Using a manually triggered deployment workflow provides an additional safety layer before infrastructure changes are applied.
+The deployment workflow is manually triggered to provide an additional safety layer before infrastructure changes are applied.
+
+---
 
 ## GitHub Actions and AWS OIDC
 
 GitHub Actions authenticates to AWS using OpenID Connect (OIDC).
 
 This avoids storing permanent AWS access keys inside GitHub repository secrets.
-
-The authentication flow is:
 
 ```text
 GitHub Actions
@@ -235,7 +246,9 @@ Separate IAM roles are used for different responsibilities:
 - **Terraform CI Role** — Used for Terraform validation and planning
 - **Terraform Apply Role** — Used for infrastructure deployment
 
-The Apply role trust policy is restricted to the project's GitHub repository and the `main` branch.
+The Terraform Apply role trust policy is restricted to the CloudTask GitHub repository and the `main` branch.
+
+---
 
 ## Monitoring and Alerting
 
@@ -273,7 +286,7 @@ CloudWatch Metrics
 Lambda Error Alarm
 ```
 
-When the configured error threshold is reached, the alarm can trigger the SNS notification system.
+When the configured error threshold is reached, the alarm triggers the SNS notification system.
 
 ### SNS Notifications
 
@@ -292,7 +305,9 @@ SNS Topic
 Email Notification
 ```
 
-The email subscription is confirmed and ready to receive infrastructure alerts.
+The SNS email subscription is confirmed and ready to receive infrastructure alerts.
+
+---
 
 ## Project Structure
 
@@ -323,16 +338,19 @@ cloudtask-aws/
 │       └── terraform-apply.yml
 │
 ├── docs/
+│   └── architecture.md
 │
 ├── .gitignore
 └── README.md
 ```
 
+---
+
 ## Security
 
-The project applies several cloud security practices:
+The project applies several AWS security practices:
 
-- The S3 frontend bucket blocks public access
+- S3 public access is blocked
 - Frontend content is delivered through CloudFront
 - CloudFront accesses S3 using Origin Access Control (OAC)
 - API endpoints are protected using Cognito JWT authentication
@@ -341,15 +359,15 @@ The project applies several cloud security practices:
 - Application users can only access their own tasks
 - GitHub Actions uses OIDC instead of permanent AWS access keys
 - CI and deployment use separate IAM roles
-- The Terraform Apply role is restricted to the repository's `main` branch
+- Terraform Apply is restricted to the repository's `main` branch
 - Terraform state and local environment files are excluded from Git
 
-## End-to-End Flow
+---
 
-A typical authenticated request follows this path:
+## End-to-End Application Flow
 
 ```text
-1. User opens CloudFront URL
+1. User opens the CloudFront URL
              │
              ▼
 2. CloudFront serves frontend from private S3
@@ -379,6 +397,8 @@ A typical authenticated request follows this path:
 10. Response is returned to the frontend
 ```
 
+---
+
 ## Verified Functionality
 
 The deployed environment has been tested end-to-end.
@@ -404,6 +424,8 @@ Verified components include:
 - Terraform Apply workflow
 - GitHub Actions authentication through AWS OIDC
 
+---
+
 ## What I Learned
 
 This project provided hands-on experience with:
@@ -428,6 +450,8 @@ This project provided hands-on experience with:
 - Authenticating GitHub Actions to AWS using OIDC
 - Separating CI and deployment permissions
 
+---
+
 ## Future Improvements
 
 Potential improvements include:
@@ -440,6 +464,8 @@ Potential improvements include:
 - Automated integration testing
 - More restrictive resource-level IAM policies
 - Improved frontend design and user experience
+
+---
 
 ## Purpose
 
