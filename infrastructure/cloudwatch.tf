@@ -115,7 +115,7 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
 
   dimensions = {
-    ApiId = aws_apigatewayv2_api.api.id
+    ApiId = aws_apigatewayv2_api.cloudtask.id
   }
 
   treat_missing_data = "notBreaching"
