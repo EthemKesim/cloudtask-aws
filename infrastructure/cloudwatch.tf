@@ -32,6 +32,35 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   ]
 }
 
+resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
+  alarm_name        = "cloudtask-lambda-duration"
+  alarm_description = "Triggers when CloudTask Lambda average duration exceeds 2 seconds."
+
+  namespace   = "AWS/Lambda"
+  metric_name = "Duration"
+  statistic   = "Average"
+
+  period             = 300
+  evaluation_periods = 1
+  threshold          = 2000
+
+  comparison_operator = "GreaterThanThreshold"
+
+  dimensions = {
+    FunctionName = aws_lambda_function.api.function_name
+  }
+
+  treat_missing_data = "notBreaching"
+
+  alarm_actions = [
+    aws_sns_topic.cloudtask_alerts.arn
+  ]
+
+  ok_actions = [
+    aws_sns_topic.cloudtask_alerts.arn
+  ]
+}
+
 resource "aws_sns_topic" "cloudtask_alerts" {
   name = "cloudtask-alerts"
 }
