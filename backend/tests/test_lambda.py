@@ -1,3 +1,4 @@
+import os 
 import json
 import unittest
 from unittest.mock import MagicMock, patch
@@ -7,6 +8,7 @@ with patch("boto3.resource") as mock_resource:
     mock_table = MagicMock()
     mock_resource.return_value.Table.return_value = mock_table
 
+    os.environ["TABLE_NAME"] = "CloudTaskTasksV2"
     from backend.lambda_function import lambda_handler
 
 

@@ -5,6 +5,12 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "api" {
+  environment {
+    variables = {
+      TABLE_NAME = aws_dynamodb_table.tasks.name
+    }
+  }
+
   function_name = local.lambda_function_name
 
   role    = aws_iam_role.lambda_role.arn
