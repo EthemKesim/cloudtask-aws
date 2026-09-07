@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "frontend" {
-  bucket = "cloudtask-frontend-ethem"
+  bucket = local.frontend_bucket_name
 }
 
 resource "aws_s3_bucket_public_access_block" "frontend" {

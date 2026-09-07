@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_log_group" "lambda" {
-  name              = "/aws/lambda/cloudtask-api"
+  name              = "/aws/lambda/${local.lambda_function_name}"
   retention_in_days = 14
 }
 
@@ -8,7 +8,7 @@ resource "aws_cloudwatch_log_group" "lambda" {
 # --------------------------------------------------
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  alarm_name        = "cloudtask-lambda-errors"
+  alarm_name        = local.lambda_errors_alarm_name
   alarm_description = "Triggers when CloudTask Lambda reports errors."
 
   namespace   = "AWS/Lambda"
@@ -41,7 +41,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 # --------------------------------------------------
 
 resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
-  alarm_name        = "cloudtask-lambda-duration"
+  alarm_name        = local.lambda_duration_alarm_name
   alarm_description = "Triggers when CloudTask Lambda average duration exceeds 2 seconds."
 
   namespace   = "AWS/Lambda"
@@ -74,7 +74,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
 # --------------------------------------------------
 
 resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
-  alarm_name        = "cloudtask-lambda-throttles"
+  alarm_name        = local.lambda_throttles_alarm_name
   alarm_description = "Triggers when CloudTask Lambda is throttled."
 
   namespace   = "AWS/Lambda"
@@ -107,7 +107,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
 # --------------------------------------------------
 
 resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
-  alarm_name        = "cloudtask-api-gateway-5xx"
+  alarm_name        = local.api_gateway_5xx_alarm_name
   alarm_description = "Triggers when CloudTask API Gateway reports 5xx errors."
 
   namespace   = "AWS/ApiGateway"
@@ -140,7 +140,7 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
 # --------------------------------------------------
 
 resource "aws_sns_topic" "cloudtask_alerts" {
-  name = "cloudtask-alerts"
+  name = local.sns_topic_name
 }
 
 resource "aws_sns_topic_subscription" "email" {
@@ -154,7 +154,7 @@ resource "aws_sns_topic_subscription" "email" {
 # --------------------------------------------------
 
 resource "aws_cloudwatch_dashboard" "cloudtask" {
-  dashboard_name = "CloudTask-Monitoring"
+  dashboard_name = local.dashboard_name
 
   dashboard_body = jsonencode({
     widgets = [

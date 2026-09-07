@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "cloudtask-api-role-owbsia84"
+  name = local.lambda_role_name
   path = "/service-role/"
 
   assume_role_policy = jsonencode({

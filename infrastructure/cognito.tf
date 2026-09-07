@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "cloudtask" {
-  name = "User pool - yednl7"
+  name = local.cognito_user_pool_name
 
   deletion_protection = "ACTIVE"
 
@@ -47,7 +47,7 @@ resource "aws_cognito_user_pool" "cloudtask" {
 }
 
 resource "aws_cognito_user_pool_client" "spa" {
-  name         = "My SPA app - 5rhpga"
+  name         = local.cognito_client_name
   user_pool_id = aws_cognito_user_pool.cloudtask.id
 
 

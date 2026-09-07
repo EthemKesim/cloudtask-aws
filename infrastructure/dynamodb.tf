@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "tasks" {
-  name         = "CloudTaskTasksV2"
+  name         = local.dynamodb_table_name
   billing_mode = "PAY_PER_REQUEST"
 
   hash_key  = "userId"

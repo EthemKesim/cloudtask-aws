@@ -7,7 +7,7 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
 }
 
 resource "aws_cloudfront_response_headers_policy" "security_headers" {
-  name    = "cloudtask-security-headers"
+  name    = local.security_headers_policy_name
   comment = "Security headers for CloudTask frontend"
 
   security_headers_config {

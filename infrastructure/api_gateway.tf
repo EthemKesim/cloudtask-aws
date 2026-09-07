@@ -1,5 +1,5 @@
 resource "aws_apigatewayv2_api" "cloudtask" {
-  name          = "cloudtask-api"
+  name          = local.api_name
   protocol_type = "HTTP"
 
   cors_configuration {
