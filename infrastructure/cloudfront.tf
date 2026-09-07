@@ -33,7 +33,7 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     }
 
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://ivg0e0r24h.execute-api.us-east-1.amazonaws.com https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com"
+      content_security_policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://ivg0e0r24h.execute-api.us-east-1.amazonaws.com https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com"
       override                = true
     }
   }

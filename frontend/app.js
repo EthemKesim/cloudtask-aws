@@ -150,10 +150,10 @@ function renderTasks() {
 
         const taskSpan = document.createElement("span");
         taskSpan.textContent = task.text;
-        taskSpan.style.marginRight = "20px";
+        taskSpan.classList.add("task-text");
 
         if (task.completed) {
-            taskSpan.style.textDecoration = "line-through";
+            taskSpan.classList.add("task-text-completed");
         }
 
 
@@ -163,7 +163,7 @@ function renderTasks() {
         doneButton.textContent =
             task.completed ? "Undo" : "Done";
 
-        doneButton.style.marginRight = "10px";
+        doneButton.classList.add("task-action");
 
         doneButton.addEventListener("click", async function () {
     const newCompletedValue = !task.completed;
