@@ -6,7 +6,8 @@ resource "aws_apigatewayv2_api" "cloudtask" {
     allow_credentials = false
 
     allow_headers = [
-      "*"
+      "Authorization",
+      "Content-Type"
     ]
 
     allow_methods = [
@@ -17,10 +18,10 @@ resource "aws_apigatewayv2_api" "cloudtask" {
     ]
 
     allow_origins = [
-      "*"
+      "https://d3uuyg0mq27sk6.cloudfront.net"
     ]
 
-    max_age = 0
+    max_age = 300
   }
 }
 
