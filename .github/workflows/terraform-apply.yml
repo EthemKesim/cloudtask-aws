@@ -55,8 +55,8 @@ jobs:
           aws-region: us-east-1
 
       - name: Terraform Init
-        run: terraform init
-
+        run: terraform init -reconfigure -backend-config=prod.tfbackend
+           
       - name: Terraform Validate
         run: terraform validate
 

@@ -1,0 +1,5 @@
+bucket       = "cloudtask-terraform-state-ethem"
+key          = "cloudtask/dev/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

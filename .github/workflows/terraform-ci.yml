@@ -40,7 +40,7 @@ jobs:
         run: terraform fmt -check
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -reconfigure -backend-config=prod.tfbackend
 
       - name: Terraform Validate
         run: terraform validate
