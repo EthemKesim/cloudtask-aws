@@ -1,5 +1,5 @@
 resource "aws_cloudfront_origin_access_control" "frontend" {
-  name                              = "oac-cloudtask-frontend-ethem.s3.amazonaws.com-mtfma71u1or"
+  name                              = local.cloudfront_oac_name
   description                       = "Created by CloudFront"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -33,7 +33,7 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     }
 
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://ivg0e0r24h.execute-api.us-east-1.amazonaws.com https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com"
+      content_security_policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ${local.csp_connect_sources}; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' ${local.csp_form_action}"
       override                = true
     }
   }
@@ -52,14 +52,14 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   origin {
-    domain_name              = "cloudtask-frontend-ethem.s3.amazonaws.com"
-    origin_id                = "cloudtask-frontend-ethem.s3.amazonaws.com-mtfm7hhhx11"
+    domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
+    origin_id                = local.cloudfront_origin_id
     origin_path              = "/frontend"
     origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
   }
 
   default_cache_behavior {
-    target_origin_id       = "cloudtask-frontend-ethem.s3.amazonaws.com-mtfm7hhhx11"
+    target_origin_id       = local.cloudfront_origin_id
     viewer_protocol_policy = "redirect-to-https"
 
     allowed_methods = [

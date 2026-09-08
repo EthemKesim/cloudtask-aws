@@ -73,11 +73,11 @@ resource "aws_cognito_user_pool_client" "spa" {
   ]
 
   callback_urls = [
-    "https://d3uuyg0mq27sk6.cloudfront.net"
+    "https://${aws_cloudfront_distribution.frontend.domain_name}"
   ]
 
   logout_urls = [
-    "https://d3uuyg0mq27sk6.cloudfront.net"
+    "https://${aws_cloudfront_distribution.frontend.domain_name}"
   ]
 
   allowed_oauth_flows = [
@@ -97,6 +97,6 @@ resource "aws_cognito_user_pool_client" "spa" {
 }
 
 resource "aws_cognito_user_pool_domain" "cloudtask" {
-  domain       = "us-east-1zdwwiqewg"
+  domain       = local.cognito_domain_prefix
   user_pool_id = aws_cognito_user_pool.cloudtask.id
 }
