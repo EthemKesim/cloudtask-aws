@@ -14,7 +14,8 @@ resource "aws_apigatewayv2_api" "cloudtask" {
       "GET",
       "POST",
       "PATCH",
-      "DELETE"
+      "DELETE",
+      "OPTIONS"
     ]
 
     allow_origins = [
