@@ -1,0 +1,41 @@
+name: Terraform DEV
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infrastructure
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::833090513321:role/cloudtask-terraform-ci
+          aws-region: us-east-1
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Init DEV
+        run: terraform init -reconfigure -backend-config=dev.tfbackend
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan DEV
+        run: terraform plan -no-color -var="environment=dev"

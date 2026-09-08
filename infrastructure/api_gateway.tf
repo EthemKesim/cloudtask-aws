@@ -18,7 +18,7 @@ resource "aws_apigatewayv2_api" "cloudtask" {
     ]
 
     allow_origins = [
-      "https://d3uuyg0mq27sk6.cloudfront.net"
+      "https://${aws_cloudfront_distribution.frontend.domain_name}"
     ]
 
     max_age = 300
@@ -32,8 +32,8 @@ resource "aws_apigatewayv2_authorizer" "cognito" {
   name             = "cloudtask-cognito-authorizer"
 
   jwt_configuration {
-    audience = ["6l2ghaere82ejr5e3cu9o0qvtd"]
-    issuer   = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_zDWwiQewg"
+    audience = [aws_cognito_user_pool_client.spa.id]
+    issuer   = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.cloudtask.id}"
   }
 }
 

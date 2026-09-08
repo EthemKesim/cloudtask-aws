@@ -1,7 +1,7 @@
 resource "aws_cognito_user_pool" "cloudtask" {
   name = local.cognito_user_pool_name
 
-  deletion_protection = "ACTIVE"
+  deletion_protection = local.is_prod ? "ACTIVE" : "INACTIVE"
 
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
