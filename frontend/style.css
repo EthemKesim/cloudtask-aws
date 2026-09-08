@@ -1,0 +1,11 @@
+.task-text {
+    margin-right: 20px;
+}
+
+.task-text-completed {
+    text-decoration: line-through;
+}
+
+.task-action {
+    margin-right: 10px;
+}
