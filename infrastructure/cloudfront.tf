@@ -48,7 +48,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   default_root_object = "index.html"
 
   tags = {
-    Name = "cloudtask-frontend-ethem"
+    Name = local.frontend_bucket_name
   }
 
   origin {
