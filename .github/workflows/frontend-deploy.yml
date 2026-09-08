@@ -25,9 +25,21 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::833090513321:role/cloudtask-frontend-deploy
           aws-region: us-east-1
+    
+      - name: Generate frontend config
+        run: |
+          cat > frontend/config.js <<'EOF'
+          window.APP_CONFIG = {
+              COGNITO_DOMAIN: "https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com",
+              CLIENT_ID: "6l2ghaere82ejr5e3cu9o0qvtd",
+              REDIRECT_URI: "https://d3uuyg0mq27sk6.cloudfront.net",
+              API_URL: "https://ivg0e0r24h.execute-api.us-east-1.amazonaws.com/tasks"
+          };
+          EOF
       
       - name: Check frontend JavaScript syntax
         run: |
+          node --check frontend/config.js
           node --check frontend/app.js
 
       - name: Sync frontend to S3

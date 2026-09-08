@@ -2,16 +2,14 @@ const taskInput = document.getElementById("taskInput");
 const addTaskButton = document.getElementById("addTaskButton");
 const taskList = document.getElementById("taskList");
 const taskCount = document.getElementById("taskCount");
-const COGNITO_DOMAIN =
-    "https://us-east-1zdwwiqewg.auth.us-east-1.amazoncognito.com";
-
-const CLIENT_ID =
-    "6l2ghaere82ejr5e3cu9o0qvtd";
-
-const REDIRECT_URI =
-    "https://d3uuyg0mq27sk6.cloudfront.net";
-
 const logoutButton = document.getElementById("logoutButton");
+const {
+    COGNITO_DOMAIN,
+    CLIENT_ID,
+    REDIRECT_URI,
+    API_URL
+} = window.APP_CONFIG;
+
 
     function generateCodeVerifier() {
     const array = new Uint8Array(32);
@@ -111,8 +109,6 @@ function logout() {
 
 let tasks = [];
 
-const API_URL =
-    "https://ivg0e0r24h.execute-api.us-east-1.amazonaws.com/tasks";
 
 
 // AWS'den task'ları getir
