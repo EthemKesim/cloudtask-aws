@@ -3,106 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudTask</title>
+    <meta name="theme-color" content="#eee7db">
+    <title>CloudTask · My workspace</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
+    <a class="skip-link" href="#workspace">Skip to workspace</a>
     <div class="app-shell">
-
-        <aside class="sidebar">
+        <aside class="sidebar" aria-label="Workspace menu">
             <div>
-                <div class="brand">
-                    <div class="brand-icon">☁️</div>
-                    <div>
-                        <h2>CloudTask</h2>
-                        <p>Task Manager</p>
-                    </div>
+                <div class="menu-heading"><h2>Menu</h2><span class="menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></div>
+                <label class="section-label" for="searchInput">Search</label>
+                <div class="search-field">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
+                    <input id="searchInput" type="search" placeholder="Search" autocomplete="off">
                 </div>
-
-                <nav class="sidebar-nav">
-                    <button class="nav-item active" data-filter="all">
-                        <span class="nav-icon">⌂</span>
+                <p class="section-label" id="tasksNavLabel">Tasks</p>
+                <nav class="sidebar-nav" aria-labelledby="tasksNavLabel">
+                    <button type="button" class="nav-item active" data-filter="all" aria-pressed="true">
+                        <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
                         My Tasks
                     </button>
-
-                    <button class="nav-item" data-filter="active">
-                        <span class="nav-icon">⌛</span>
+                    <button type="button" class="nav-item" data-filter="active" aria-pressed="false">
+                        <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v4c0 3 10 7 10 10v4M17 3v4c0 3-10 7-10 10v4"/></svg>
                         Active
                     </button>
-
-                    <button class="nav-item" data-filter="completed">
-                        <span class="nav-icon">✓</span>
+                    <button type="button" class="nav-item" data-filter="completed" aria-pressed="false">
+                        <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8 12 3 3 5-6"/></svg>
                         Completed
                     </button>
                 </nav>
+                <div class="sidebar-tip"><span aria-hidden="true">✧</span><p>A little focus.<br>A little progress.<br>One task at a time.</p></div>
             </div>
-
-            <button id="logoutButton" class="logout-button">
-                Sign out
-            </button>
+            <div class="sidebar-bottom">
+                <button type="button" id="logoutButton" class="logout-button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 4H5v16h5M10 12h10m-4-4 4 4-4 4"/></svg>Sign out
+                </button>
+                <div class="brand"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 18a5 5 0 1 1 1-10 6 6 0 0 1 11 3 3.5 3.5 0 0 1-1 7Z"/></svg><span>CloudTask<small>A little space to get things done.</small></span></div>
+            </div>
         </aside>
-
-        <main class="main-content">
-
+        <main id="workspace" class="main-content" tabindex="-1">
             <header class="page-header">
-                <div>
-                    <p class="eyebrow">MY WORKSPACE</p>
-                    <h1>My Tasks</h1>
-                    <p class="subtitle">
-                        Stay focused and keep track of what matters.
-                    </p>
+                <div class="welcome-note paper">
+                    <span class="pins" aria-hidden="true"></span>
+                    <p class="eyebrow">My workspace</p>
+                    <h1>My Tasks<span aria-hidden="true">.</span></h1>
+                    <p class="subtitle">Stay focused and keep track of what matters.</p>
                 </div>
-
-                <div class="stats">
-                    <div class="stat">
-                        <strong id="totalCount">0</strong>
-                        <span>Total</span>
-                    </div>
-
-                    <div class="stat">
-                        <strong id="activeCount">0</strong>
-                        <span>Active</span>
-                    </div>
-
-                    <div class="stat">
-                        <strong id="completedCount">0</strong>
-                        <span>Completed</span>
-                    </div>
+                <div class="stats paper" aria-label="Task statistics">
+                    <span class="pins" aria-hidden="true"></span>
+                    <div class="stat"><strong id="completedCount">0</strong><span>Completed</span></div>
+                    <div class="stat"><strong id="activeCount">0</strong><span>Active</span></div>
+                    <div class="stat"><strong id="totalCount">0</strong><span>Total</span></div>
                 </div>
             </header>
-
-            <section class="add-task-card">
-                <div class="add-icon">+</div>
-
-                <input
-                    type="text"
-                    id="taskInput"
-                    placeholder="What do you need to do?"
-                    autocomplete="off"
-                >
-
-                <button id="addTaskButton">
-                    Add Task
-                </button>
+            <section class="add-task-card paper" aria-label="Add a task">
+                <svg class="add-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 4 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14Z"/></svg>
+                <label class="sr-only" for="taskInput">New task</label>
+                <input type="text" id="taskInput" placeholder="What do you need to do?" autocomplete="off">
+                <button type="button" id="addTaskButton">Add Task</button>
             </section>
-
-            <section class="tasks-section">
-                <div class="section-header">
-                    <h3>Your tasks</h3>
-                    <span id="taskCount"></span>
-                </div>
-
+            <section class="tasks-section" aria-labelledby="tasksHeading">
+                <div class="section-header"><h2 id="tasksHeading">Your tasks</h2><span id="taskCount" role="status" aria-live="polite"></span></div>
                 <ul id="taskList" class="task-list"></ul>
             </section>
-
+            <div class="board-footer" aria-hidden="true">
+                <p>Make room for what matters.</p>
+                <div class="spare-notes"><span class="paper"><i class="pins"></i></span><span class="paper"><i class="pins"></i></span><span class="paper"><i class="pins"></i></span></div>
+            </div>
         </main>
-
     </div>
-
     <script src="config.js"></script>
     <script src="app.js"></script>
-
 </body>
 </html>

@@ -8,6 +8,8 @@ const totalCount = document.getElementById("totalCount");
 const activeCount = document.getElementById("activeCount");
 const completedCount = document.getElementById("completedCount");
 
+const searchInput = document.getElementById("searchInput");
+
 const navItems = document.querySelectorAll(".nav-item");
 
 const {
@@ -19,6 +21,8 @@ const {
 
 let tasks = [];
 let currentFilter = "all";
+let searchQuery = "";
+let newlyAddedTaskId = null;
 
 function generateCodeVerifier() {
     const array = new Uint8Array(32);
@@ -144,25 +148,17 @@ function updateStats() {
     activeCount.textContent = activeTasks;
     completedCount.textContent = completedTasks;
 
-    if (currentFilter === "all") {
-        taskCount.textContent = `${tasks.length} tasks`;
-    } else if (currentFilter === "active") {
-        taskCount.textContent = `${activeTasks} active`;
-    } else {
-        taskCount.textContent = `${completedTasks} completed`;
-    }
+    const visibleCount = getFilteredTasks().length;
+    taskCount.textContent = `${visibleCount} ${visibleCount === 1 ? "task" : "tasks"}`;
 }
 
 function getFilteredTasks() {
-    if (currentFilter === "active") {
-        return tasks.filter(task => !task.completed);
-    }
-
-    if (currentFilter === "completed") {
-        return tasks.filter(task => task.completed);
-    }
-
-    return tasks;
+    return tasks.filter(task => {
+        const matchesFilter = currentFilter === "all"
+            || (currentFilter === "active" && task.completed === false)
+            || (currentFilter === "completed" && task.completed === true);
+        return matchesFilter && task.text.toLocaleLowerCase().includes(searchQuery);
+    });
 }
 
 function renderTasks() {
@@ -174,7 +170,9 @@ function renderTasks() {
         const emptyState = document.createElement("li");
         emptyState.className = "empty-state";
 
-        if (currentFilter === "completed") {
+        if (searchQuery) {
+            emptyState.textContent = "No matching tasks. Try another search or filter.";
+        } else if (currentFilter === "completed") {
             emptyState.textContent = "No completed tasks yet.";
         } else if (currentFilter === "active") {
             emptyState.textContent = "No active tasks. Nice work!";
@@ -184,11 +182,19 @@ function renderTasks() {
 
         taskList.appendChild(emptyState);
         updateStats();
+        newlyAddedTaskId = null;
         return;
     }
 
     filteredTasks.forEach(function (task) {
         const listItem = document.createElement("li");
+        if (task.taskId === newlyAddedTaskId) {
+            listItem.classList.add("note-new");
+        }
+        const pins = document.createElement("span");
+        pins.className = "pins";
+        pins.setAttribute("aria-hidden", "true");
+        listItem.appendChild(pins);
 
         if (task.completed) {
             listItem.classList.add("task-completed");
@@ -203,6 +209,8 @@ function renderTasks() {
             : "task-status active-status";
 
         statusIcon.textContent = task.completed ? "✓" : "⌛";
+        statusIcon.setAttribute("role", "img");
+        statusIcon.setAttribute("aria-label", task.completed ? "Completed" : "Active");
 
         const taskSpan = document.createElement("span");
         taskSpan.textContent = task.text;
@@ -294,6 +302,7 @@ function renderTasks() {
     });
 
     updateStats();
+    newlyAddedTaskId = null;
 }
 
 async function addTask() {
@@ -329,6 +338,7 @@ async function addTask() {
         const createdTask = await response.json();
 
         tasks.push(createdTask);
+        newlyAddedTaskId = createdTask.taskId;
 
         taskInput.value = "";
 
@@ -343,14 +353,23 @@ async function addTask() {
 
 navItems.forEach(function (navItem) {
     navItem.addEventListener("click", function () {
-        navItems.forEach(item => item.classList.remove("active"));
+        navItems.forEach(item => {
+            item.classList.remove("active");
+            item.setAttribute("aria-pressed", "false");
+        });
 
         navItem.classList.add("active");
+        navItem.setAttribute("aria-pressed", "true");
 
         currentFilter = navItem.dataset.filter;
 
         renderTasks();
     });
+});
+
+searchInput.addEventListener("input", function () {
+    searchQuery = searchInput.value.trim().toLocaleLowerCase();
+    renderTasks();
 });
 
 addTaskButton.addEventListener("click", addTask);
