@@ -1,12 +1,13 @@
 name: Backend Deploy
 
 on:
+  workflow_dispatch:
+
   push:
     branches:
       - main
     paths:
       - "backend/**"
-      - ".github/workflows/backend-deploy.yml"
 
 permissions:
   id-token: write
