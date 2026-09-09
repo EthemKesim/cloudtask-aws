@@ -1,13 +1,14 @@
 name: Frontend Deploy
 
 on:
+  workflow_dispatch:
+
   push:
     branches:
       - main
     paths:
       - "frontend/**"
-      - ".github/workflows/frontend-deploy.yml"
-
+      
 permissions:
   id-token: write
   contents: read
