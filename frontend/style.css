@@ -33,6 +33,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .app-shell {
     display: grid;
     grid-template-columns: 240px minmax(0, 1fr);
+    transition: grid-template-columns .3s ease;
     max-width: 1280px;
     min-height: 790px;
     margin: 0 auto;
@@ -42,6 +43,15 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
     background: #f9f8f3;
     box-shadow: 0 28px 65px -24px #503b3652, 0 3px 9px #5f49351a;
 }
+/* The wrapper clips the sidebar while its grid track collapses. */
+.sidebar-region { display: grid; grid-template-rows: 1fr; min-width: 0; min-height: 0; overflow: hidden; transition: grid-template-rows .3s ease, opacity .3s ease, visibility .3s; }
+.sidebar-region > .sidebar { width: 240px; min-height: 0; overflow: hidden; }
+.app-shell.sidebar-collapsed { grid-template-columns: 0px minmax(0, 1fr); }
+.sidebar-collapsed .sidebar-region { opacity: 0; visibility: hidden; pointer-events: none; }
+.menu-toggle { width: 44px; height: 44px; flex-shrink: 0; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--ink); }
+.menu-toggle:hover { background: #e4e9df; }
+.sidebar-reopen { align-self: flex-start; margin-bottom: 18px; background: #f9f8f3; box-shadow: var(--paper-shadow); }
+.sidebar-reopen[hidden] { display: none; }
 .sidebar { padding: 28px 24px 18px; display: flex; flex-direction: column; justify-content: space-between; gap: 52px; min-width: 0; }
 .menu-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 34px; }
 .menu-heading h2 { font-size: 26px; letter-spacing: 0; font-weight: 400; }
@@ -153,6 +163,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 @media (max-width: 1100px) {
     .app-shell { grid-template-columns: 220px minmax(0, 1fr); }
     .sidebar { padding-inline: 20px; }
+    .sidebar-region > .sidebar { width: 220px; }
     .main-content { padding: 30px 24px 22px; }
     .page-header { grid-template-columns: minmax(0, 1fr) 216px; gap: 18px; }
     .welcome-note { padding-inline: 20px; }
@@ -162,7 +173,11 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 @media (max-width: 900px) {
     body { padding: 20px; }
     .app-shell { grid-template-columns: 1fr; padding: 0 8px 8px; min-height: auto; }
-    .sidebar { padding: 22px 20px; gap: 16px; }
+    .sidebar { padding: 22px 20px; gap: 16px; transition: padding-block .3s ease; }
+    .sidebar-region > .sidebar { width: auto; }
+    .app-shell.sidebar-collapsed { grid-template-columns: 1fr; }
+    .sidebar-collapsed .sidebar-region { grid-template-rows: 0fr; }
+    .sidebar-collapsed .sidebar { padding-block: 0; }
     .menu-heading { margin-bottom: 18px; }
     .search-field { margin-bottom: 20px; }
     .sidebar-nav { flex-direction: row; gap: 8px; }

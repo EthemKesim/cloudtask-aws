@@ -10,9 +10,10 @@
 <body>
     <a class="skip-link" href="#workspace">Skip to workspace</a>
     <div class="app-shell">
+        <div id="sidebarRegion" class="sidebar-region">
         <aside class="sidebar" aria-label="Workspace menu">
             <div>
-                <div class="menu-heading"><h2>Menu</h2><span class="menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></div>
+                <div class="menu-heading"><h2>Menu</h2><button type="button" id="closeMenuButton" class="menu-toggle" aria-label="Close menu" aria-expanded="true" aria-controls="sidebarRegion"><span class="menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></button></div>
                 <label class="section-label" for="searchInput">Search</label>
                 <div class="search-field">
                     <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
@@ -42,7 +43,9 @@
                 <div class="brand"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 18a5 5 0 1 1 1-10 6 6 0 0 1 11 3 3.5 3.5 0 0 1-1 7Z"/></svg><span>CloudTask<small>A little space to get things done.</small></span></div>
             </div>
         </aside>
+        </div>
         <main id="workspace" class="main-content" tabindex="-1">
+            <button type="button" id="openMenuButton" class="menu-toggle sidebar-reopen" aria-label="Open menu" aria-expanded="true" aria-controls="sidebarRegion" hidden><span class="menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></button>
             <header class="page-header">
                 <div class="welcome-note paper">
                     <span class="pins" aria-hidden="true"></span>

@@ -1,3 +1,44 @@
+// Sidebar preference is UI-only and independent of authentication/task state.
+const appShell = document.querySelector(".app-shell");
+const sidebarRegion = document.getElementById("sidebarRegion");
+const closeMenuButton = document.getElementById("closeMenuButton");
+const openMenuButton = document.getElementById("openMenuButton");
+const sidebarPreferenceKey = "cloudtask-sidebar-collapsed";
+
+function setSidebarCollapsed(collapsed, moveFocus = false) {
+    appShell.classList.toggle("sidebar-collapsed", collapsed);
+    openMenuButton.hidden = !collapsed;
+    sidebarRegion.inert = collapsed;
+    closeMenuButton.setAttribute("aria-expanded", String(!collapsed));
+    openMenuButton.setAttribute("aria-expanded", String(!collapsed));
+
+    if (!collapsed) {
+        sidebarRegion.setAttribute("aria-hidden", "false");
+    }
+    if (moveFocus) {
+        (collapsed ? openMenuButton : closeMenuButton).focus({ preventScroll: true });
+    }
+    sidebarRegion.setAttribute("aria-hidden", String(collapsed));
+}
+
+function toggleSidebar(collapsed) {
+    setSidebarCollapsed(collapsed, true);
+    try {
+        localStorage.setItem(sidebarPreferenceKey, String(collapsed));
+    } catch {
+        // The controls still work when browser storage is unavailable.
+    }
+}
+
+closeMenuButton.addEventListener("click", () => toggleSidebar(true));
+openMenuButton.addEventListener("click", () => toggleSidebar(false));
+
+try {
+    setSidebarCollapsed(localStorage.getItem(sidebarPreferenceKey) === "true");
+} catch {
+    setSidebarCollapsed(false);
+}
+
 const taskInput = document.getElementById("taskInput");
 const addTaskButton = document.getElementById("addTaskButton");
 const taskList = document.getElementById("taskList");
