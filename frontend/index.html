@@ -9,22 +9,84 @@
 
 <body>
 
-    <h1>CloudTask ☁️</h1>
-    <p>Simple AWS task management project</p>
+    <div class="app-shell">
 
-    <button id="logoutButton">Logout</button>
+        <aside class="sidebar">
+            <div>
+                <div class="brand">
+                    <div class="brand-icon">☁️</div>
+                    <div>
+                        <h2>CloudTask</h2>
+                        <p>Task Manager</p>
+                    </div>
+                </div>
 
+                <nav class="sidebar-nav">
+                    <button class="nav-item active">
+                        <span>✓</span>
+                        My Tasks
+                    </button>
 
-    <input type="text" id="taskInput" placeholder="Enter a task">
+                    <button class="nav-item">
+                        <span>○</span>
+                        Active
+                    </button>
 
-    <button id="addTaskButton">
-        Add Task
-    </button>
-    <p id="taskCount"></p>
-    <ul id="taskList">
-    </ul>
+                    <button class="nav-item">
+                        <span>✓</span>
+                        Completed
+                    </button>
+                </nav>
+            </div>
 
-<script src="config.js"></script>
-<script src="app.js"></script>    
+            <button id="logoutButton" class="logout-button">
+                Sign out
+            </button>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="page-header">
+                <div>
+                    <p class="eyebrow">MY WORKSPACE</p>
+                    <h1>My Tasks</h1>
+                    <p class="subtitle">
+                        Stay focused and keep track of what matters.
+                    </p>
+                </div>
+
+                <div class="task-summary">
+                    <span id="taskCount">0 tasks</span>
+                </div>
+            </header>
+
+            <section class="add-task-card">
+                <input
+                    type="text"
+                    id="taskInput"
+                    placeholder="What do you need to do?"
+                    autocomplete="off"
+                >
+
+                <button id="addTaskButton">
+                    + Add Task
+                </button>
+            </section>
+
+            <section class="tasks-section">
+                <div class="section-header">
+                    <h3>Your tasks</h3>
+                </div>
+
+                <ul id="taskList" class="task-list"></ul>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+
 </body>
 </html>
