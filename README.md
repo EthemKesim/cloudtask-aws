@@ -1,16 +1,16 @@
-# CloudTask AWS ☁️
+# CloudTask ☁️
 
-CloudTask is a serverless task management web application built as a hands-on project to learn and apply AWS cloud architecture, serverless development, authentication, monitoring, security, CI/CD, and Infrastructure as Code.
+A serverless task management application built on AWS with secure authentication, Infrastructure as Code, CI/CD, monitoring, and separate development and production environments.
 
-The application allows authenticated users to create, view, update, complete, and delete their own tasks through a fully serverless AWS architecture.
+CloudTask combines a lightweight sticky-wall task interface with a production-style AWS architecture. Users can securely sign in, create and manage their own tasks, search and filter them, and access the application through a CloudFront-delivered frontend.
+
+> Built as a hands-on cloud engineering project focused on AWS, Terraform, DevOps, security, and serverless architecture.
 
 ---
 
-## Architecture
+## Overview
 
-### Architecture Diagram
-
-➡️ [View the detailed CloudTask AWS Architecture Diagram](docs/architecture.md)
+CloudTask is built around a fully serverless architecture:
 
 ```text
                          User
@@ -25,287 +25,235 @@ The application allows authenticated users to create, view, update, complete, an
                            ▼
                       API Gateway
                            │
-                    JWT Authentication
+                    JWT Authorization
                            │
-                    ┌──────┴──────┐
-                    │             │
-                    ▼             ▼
-                 Cognito        Lambda
-                                  │
-                                  ▼
-                              DynamoDB
+                 ┌─────────┴─────────┐
+                 │                   │
+                 ▼                   ▼
+              Cognito              Lambda
+                                      │
+                                      ▼
+                                  DynamoDB
 ```
 
-### Monitoring & Alerting
+**Supporting infrastructure**
 
 ```text
-Lambda
-   │
-   ├──────────► CloudWatch Logs
-   │
-   └──────────► CloudWatch Alarm
-                       │
-                       ▼
-                      SNS
-                       │
-                       ▼
-                 Email Alert
+GitHub Actions ── OIDC ──► AWS
+       │
+       └── Terraform
+
+Lambda ──► CloudWatch ──► SNS Alerts
 ```
 
-### Infrastructure & CI/CD
-
-```text
-GitHub
-   │
-   ├────────► Terraform CI
-   │              │
-   │              ├── fmt
-   │              ├── init
-   │              ├── validate
-   │              └── plan
-   │
-   └────────► Terraform Apply
-                  │
-                  ▼
-             GitHub OIDC
-                  │
-                  ▼
-                 AWS
-```
+For a more detailed architecture breakdown, see [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
-## AWS Services
+## Highlights
 
-- **Amazon S3** — Hosts the static frontend in a private bucket
-- **Amazon CloudFront** — Delivers the frontend securely over HTTPS
-- **Amazon Cognito** — Handles user authentication
-- **Amazon API Gateway** — Exposes and protects the backend HTTP API
-- **AWS Lambda** — Runs the serverless backend logic
-- **Amazon DynamoDB** — Stores user-specific tasks
-- **Amazon CloudWatch** — Provides Lambda logging and error monitoring
-- **Amazon SNS** — Sends email notifications when alarms are triggered
-- **AWS IAM** — Controls permissions between AWS services and CI/CD roles
-- **AWS IAM OIDC** — Allows GitHub Actions to authenticate to AWS without long-lived credentials
-- **Terraform** — Provisions and manages AWS infrastructure
-- **GitHub Actions** — Performs Terraform CI validation and infrastructure deployment
-
----
-
-## Features
-
-- User sign-up and login with Amazon Cognito
-- OAuth 2.0 Authorization Code Flow with PKCE
-- JWT-protected API endpoints
-- Create, read, update, complete, and delete tasks
-- User-specific task isolation
-- Persistent task storage with DynamoDB
-- Private S3 frontend accessible through CloudFront
-- Serverless backend architecture
-- CloudWatch logging for Lambda requests
-- Automated monitoring of Lambda errors
-- SNS email notifications for infrastructure alarms
+- Serverless AWS architecture
+- Cognito authentication with OAuth 2.0 Authorization Code Flow + PKCE
+- JWT-protected API Gateway endpoints
+- User-isolated task data in DynamoDB
+- Private S3 frontend delivered through CloudFront
 - Infrastructure managed with Terraform
-- Terraform validation and planning with GitHub Actions
-- AWS authentication from GitHub Actions using OIDC
-- Separate IAM roles for CI and infrastructure deployment
+- GitHub Actions CI/CD using AWS OIDC
+- No long-lived AWS credentials stored in GitHub
+- Separate DEV and PROD environments
+- Protected production deployments with manual approval
+- Automated frontend and backend deployment workflows
+- CloudWatch logging, metrics, alarms, and SNS notifications
+- Responsive corkboard-inspired task management interface
+
+---
+
+## Application
+
+The frontend uses a physical sticky-wall concept while keeping the interface simple and responsive.
+
+Users can:
+
+- Create and delete tasks
+- Mark tasks as completed and undo completion
+- Search tasks locally
+- Filter between all, active, and completed tasks
+- View live task statistics
+- Collapse the sidebar for a focused workspace
+- Securely sign in and out through Amazon Cognito
+
+Completed tasks are visually crossed out on their sticky notes, while active tasks remain visible on the corkboard workspace.
+
+### Application Preview
+
+```markdown
+![CloudTask Dashboard](docs/images/cloudtask-dashboard.png)
+```
+
+---
+
+## Tech Stack
+
+| Area | Technologies |
+|---|---|
+| Frontend | HTML, CSS, JavaScript |
+| Backend | Python, AWS Lambda |
+| API | Amazon API Gateway |
+| Authentication | Amazon Cognito, OAuth 2.0 PKCE, JWT |
+| Database | Amazon DynamoDB |
+| Hosting | Amazon S3, Amazon CloudFront |
+| Infrastructure | Terraform |
+| CI/CD | GitHub Actions, AWS OIDC |
+| Monitoring | Amazon CloudWatch, Amazon SNS |
+| Security | AWS IAM, OAC, JWT authorization |
 
 ---
 
 ## Infrastructure as Code
 
-The AWS infrastructure is managed using Terraform.
+The AWS infrastructure is managed with Terraform rather than being maintained manually.
 
-Terraform manages:
+Terraform provisions and manages the core application infrastructure, including:
 
-- DynamoDB table
-- Lambda function
-- Lambda IAM execution role and permissions
-- API Gateway API
-- API Gateway routes and Lambda integrations
-- JWT authorizer
-- Cognito User Pool
-- Cognito application client
-- Cognito domain
-- S3 frontend bucket
-- S3 access policies
-- CloudFront distribution
-- CloudFront Origin Access Control
-- CloudWatch log group
-- CloudWatch Lambda error alarm
-- SNS alert topic
-- SNS email subscription
-
-For local infrastructure validation:
-
-```bash
-cd infrastructure
-
-terraform fmt
-terraform init
-terraform validate
-terraform plan
+```text
+CloudFront + S3
+       │
+       ├── Cognito
+       │
+       ├── API Gateway
+       │
+       ├── Lambda
+       │
+       ├── DynamoDB
+       │
+       └── CloudWatch + SNS
 ```
 
-Infrastructure changes should always be reviewed through a Terraform plan before they are applied.
+Remote Terraform state is stored in Amazon S3.
+
+Before infrastructure changes are deployed, GitHub Actions performs formatting, initialization, validation, and planning.
+
+```text
+terraform fmt
+      ↓
+terraform init
+      ↓
+terraform validate
+      ↓
+terraform plan
+      ↓
+Manual Approval / Apply
+```
 
 ---
 
 ## CI/CD
 
-The project uses GitHub Actions to validate and deploy Terraform infrastructure.
+CloudTask uses separate GitHub Actions workflows for infrastructure and application deployments.
 
-Two separate workflows are used to separate infrastructure validation from deployment.
+### Development
 
-### Terraform CI
-
-The Terraform CI workflow runs:
+New changes are tested against the DEV environment first.
 
 ```text
-Checkout Repository
-        │
-        ▼
-Setup Terraform
-        │
-        ▼
-Configure AWS Credentials
-        │
-        ▼
-terraform fmt
-        │
-        ▼
-terraform init
-        │
-        ▼
-terraform validate
-        │
-        ▼
-terraform plan
+Code Change
+     ↓
+GitHub
+     ↓
+DEV Deployment
+     ↓
+Testing
 ```
 
-The CI workflow verifies that the Terraform configuration is correctly formatted, valid, and synchronized with the deployed AWS infrastructure.
+### Production
 
-### Terraform Apply
-
-Infrastructure deployment is handled through a separate manually triggered GitHub Actions workflow.
+Production deployments are protected by a GitHub Environment approval gate.
 
 ```text
-Checkout Repository
-        │
-        ▼
-Setup Terraform
-        │
-        ▼
-GitHub OIDC Authentication
-        │
-        ▼
-Terraform Init
-        │
-        ▼
-Terraform Validate
-        │
-        ▼
-Terraform Plan
-        │
-        ▼
-Terraform Apply
-        │
-        ▼
-AWS Infrastructure
+DEV Verified
+     ↓
+Production Deployment
+     ↓
+Manual Approval
+     ↓
+AWS Production
 ```
 
-The deployment workflow is manually triggered to provide an additional safety layer before infrastructure changes are applied.
+GitHub Actions authenticates to AWS through **OpenID Connect (OIDC)** and assumes dedicated IAM roles. This avoids storing permanent AWS access keys in GitHub.
+
+Separate roles are used for responsibilities such as:
+
+- Terraform CI
+- Terraform Apply
+- Frontend deployment
+- Backend deployment
 
 ---
 
-## GitHub Actions and AWS OIDC
+## DEV and PROD Environments
 
-GitHub Actions authenticates to AWS using OpenID Connect (OIDC).
-
-This avoids storing permanent AWS access keys inside GitHub repository secrets.
+CloudTask maintains isolated development and production resources.
 
 ```text
-GitHub Actions
-      │
-      │ OIDC Token
-      ▼
-AWS IAM OIDC Provider
-      │
-      ▼
-IAM Role
-      │
-      ▼
-Temporary AWS Credentials
-      │
-      ▼
-Terraform
+                CloudTask
+                    │
+           ┌────────┴────────┐
+           │                 │
+           ▼                 ▼
+          DEV               PROD
+           │                 │
+     Test changes       Live application
+           │                 │
+     No approval       Approval required
 ```
 
-Separate IAM roles are used for different responsibilities:
-
-- **Terraform CI Role** — Used for Terraform validation and planning
-- **Terraform Apply Role** — Used for infrastructure deployment
-
-The Terraform Apply role trust policy is restricted to the CloudTask GitHub repository and the `main` branch.
+This allows application and infrastructure changes to be verified before they reach production.
 
 ---
 
-## Monitoring and Alerting
+## Security
 
-CloudTask includes monitoring and alerting for the serverless backend.
+Security decisions are built into the architecture rather than added only at the application layer.
 
-### CloudWatch Logs
+- S3 public access is blocked
+- CloudFront accesses the frontend bucket through Origin Access Control
+- API endpoints require Cognito JWT authentication
+- OAuth 2.0 Authorization Code Flow with PKCE is used for browser authentication
+- Users can only access their own task data
+- Lambda uses IAM roles for AWS service access
+- GitHub Actions uses temporary AWS credentials through OIDC
+- CI and deployment responsibilities use separate IAM roles
+- Production deployments require explicit approval
+- Terraform state and local environment files are excluded from Git
 
-AWS Lambda sends application logs to:
+---
 
-```text
-/aws/lambda/cloudtask-api
-```
+## Monitoring
 
-The logs include information such as:
+The backend is monitored through Amazon CloudWatch.
 
-- Lambda request execution
-- HTTP request methods
-- Authenticated user IDs
-- Task operations
-- Task counts
-- Execution duration
-- Lambda runtime information
+CloudTask includes:
 
-### CloudWatch Alarm
-
-A CloudWatch alarm monitors Lambda execution errors.
-
-```text
-Lambda
-   │
-   ▼
-CloudWatch Metrics
-   │
-   ▼
-Lambda Error Alarm
-```
-
-When the configured error threshold is reached, the alarm triggers the SNS notification system.
-
-### SNS Notifications
-
-Amazon SNS is connected to the CloudWatch alarm.
+- Lambda application logs
+- Lambda error monitoring
+- Lambda duration monitoring
+- Lambda throttling monitoring
+- API Gateway 5XX monitoring
+- CloudWatch dashboard
+- SNS alert notifications
 
 ```text
-Lambda Error
-     │
-     ▼
-CloudWatch Alarm
-     │
-     ▼
-SNS Topic
-     │
-     ▼
-Email Notification
+Lambda / API Gateway
+        │
+        ▼
+    CloudWatch
+        │
+        ▼
+      Alarms
+        │
+        ▼
+       SNS
 ```
-
-The SNS email subscription is confirmed and ready to receive infrastructure alerts.
 
 ---
 
@@ -316,13 +264,21 @@ cloudtask-aws/
 │
 ├── frontend/
 │   ├── index.html
-│   └── app.js
+│   ├── app.js
+│   ├── config.js
+│   └── style.css
 │
 ├── backend/
-│   └── lambda_function.py
+│   ├── lambda_function.py
+│   ├── requirements.txt
+│   └── tests/
+│       └── test_lambda.py
 │
 ├── infrastructure/
 │   ├── provider.tf
+│   ├── variables.tf
+│   ├── locals.tf
+│   ├── outputs.tf
 │   ├── dynamodb.tf
 │   ├── iam.tf
 │   ├── lambda.tf
@@ -330,145 +286,65 @@ cloudtask-aws/
 │   ├── cognito.tf
 │   ├── s3.tf
 │   ├── cloudfront.tf
-│   └── monitoring.tf
+│   └── cloudwatch.tf
 │
 ├── .github/
 │   └── workflows/
 │       ├── terraform-ci.yml
-│       └── terraform-apply.yml
+│       ├── terraform-apply.yml
+│       ├── terraform-dev.yml
+│       ├── terraform-dev-apply.yml
+│       ├── frontend-deploy.yml
+│       ├── frontend-deploy-dev.yml
+│       ├── backend-deploy.yml
+│       └── backend-deploy-dev.yml
 │
 ├── docs/
 │   └── architecture.md
 │
-├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Security
-
-The project applies several AWS security practices:
-
-- S3 public access is blocked
-- Frontend content is delivered through CloudFront
-- CloudFront accesses S3 using Origin Access Control (OAC)
-- API endpoints are protected using Cognito JWT authentication
-- OAuth 2.0 Authorization Code Flow with PKCE is used for authentication
-- Lambda uses an IAM execution role to access DynamoDB
-- Application users can only access their own tasks
-- GitHub Actions uses OIDC instead of permanent AWS access keys
-- CI and deployment use separate IAM roles
-- Terraform Apply is restricted to the repository's `main` branch
-- Terraform state and local environment files are excluded from Git
-
----
-
-## End-to-End Application Flow
-
-```text
-1. User opens the CloudFront URL
-             │
-             ▼
-2. CloudFront serves frontend from private S3
-             │
-             ▼
-3. User authenticates with Cognito
-             │
-             ▼
-4. Cognito returns authentication tokens
-             │
-             ▼
-5. Frontend sends JWT with API request
-             │
-             ▼
-6. API Gateway validates JWT
-             │
-             ▼
-7. API Gateway invokes Lambda
-             │
-             ▼
-8. Lambda processes the request
-             │
-             ▼
-9. Lambda reads/writes tasks in DynamoDB
-             │
-             ▼
-10. Response is returned to the frontend
-```
-
----
-
-## Verified Functionality
-
-The deployed environment has been tested end-to-end.
-
-Verified components include:
-
-- CloudFront frontend delivery
-- Private S3 frontend hosting
-- Cognito authentication
-- Successful login and redirect flow
-- API Gateway JWT authorization
-- Lambda backend execution
-- DynamoDB task persistence
-- Creating tasks
-- Reading tasks
-- Updating task completion status
-- Deleting tasks
-- User-specific task access
-- CloudWatch Lambda logs
-- CloudWatch Lambda error alarm
-- Confirmed SNS email subscription
-- Terraform CI workflow
-- Terraform Apply workflow
-- GitHub Actions authentication through AWS OIDC
-
----
-
 ## What I Learned
 
-This project provided hands-on experience with:
+CloudTask started as a practical AWS learning project and evolved into an end-to-end serverless application.
 
-- Designing a serverless AWS architecture
-- Connecting multiple AWS managed services
-- Building serverless APIs with API Gateway and Lambda
-- IAM roles and service permissions
-- Authentication with Amazon Cognito
-- JWT authorization
-- OAuth 2.0 Authorization Code Flow with PKCE
-- DynamoDB data modeling
-- User-specific data isolation
-- CloudFront and private S3 hosting
-- CloudWatch logging and monitoring
-- SNS-based infrastructure alerting
+The project provided hands-on experience with:
+
+- Designing serverless AWS architectures
 - Infrastructure as Code with Terraform
-- Importing existing AWS resources into Terraform state
-- Terraform state synchronization
-- Reviewing Terraform plans before infrastructure changes
-- Building CI/CD workflows with GitHub Actions
-- Authenticating GitHub Actions to AWS using OIDC
-- Separating CI and deployment permissions
+- IAM permissions and role separation
+- OAuth, PKCE, JWT, and Cognito authentication
+- API Gateway and Lambda integration
+- DynamoDB data modeling and user isolation
+- Private S3 hosting with CloudFront
+- GitHub Actions CI/CD
+- AWS authentication through OIDC
+- DEV/PROD environment separation
+- Production deployment protection
+- CloudWatch monitoring and alerting
+
+The main goal was not only to deploy an application, but to understand how the individual cloud, security, infrastructure, and deployment components work together.
 
 ---
 
 ## Future Improvements
 
-Potential improvements include:
+Possible next steps:
 
-- Automated frontend deployment to S3
-- CloudFront cache invalidation during frontend deployments
-- Custom domain configuration with Route 53
-- HTTPS certificate management with AWS Certificate Manager
-- Additional CloudWatch dashboards and metrics
-- Automated integration testing
-- More restrictive resource-level IAM policies
-- Improved frontend design and user experience
+- Custom domain with Route 53
+- ACM-managed TLS certificate
+- Automated integration and end-to-end tests
+- Further IAM permission tightening
+- Additional application observability
+- Task due dates, categories, and tags
 
 ---
 
-## Purpose
+## Status
 
-CloudTask was created as a practical AWS learning project focused on understanding how production-style cloud components work together.
+CloudTask is deployed and tested across separate DEV and PROD environments.
 
-Rather than using a single managed application platform, the project connects individual AWS services to gain hands-on experience with serverless architecture, authentication, security, monitoring, Infrastructure as Code, and CI/CD.
+Core application functionality, authentication, task persistence, CI/CD, infrastructure provisioning, monitoring, and production deployment protection are operational.
