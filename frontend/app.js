@@ -3,6 +3,13 @@ const addTaskButton = document.getElementById("addTaskButton");
 const taskList = document.getElementById("taskList");
 const taskCount = document.getElementById("taskCount");
 const logoutButton = document.getElementById("logoutButton");
+
+const totalCount = document.getElementById("totalCount");
+const activeCount = document.getElementById("activeCount");
+const completedCount = document.getElementById("completedCount");
+
+const navItems = document.querySelectorAll(".nav-item");
+
 const {
     COGNITO_DOMAIN,
     CLIENT_ID,
@@ -10,8 +17,10 @@ const {
     API_URL
 } = window.APP_CONFIG;
 
+let tasks = [];
+let currentFilter = "all";
 
-    function generateCodeVerifier() {
+function generateCodeVerifier() {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
 
@@ -75,10 +84,10 @@ async function handleCallback() {
     });
 
     if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Cognito token error:", errorText);
-    throw new Error("Failed to exchange authorization code");
-}
+        const errorText = await response.text();
+        console.error("Cognito token error:", errorText);
+        throw new Error("Failed to exchange authorization code");
+    }
 
     const tokens = await response.json();
 
@@ -107,16 +116,11 @@ function logout() {
     window.location.href = logoutUrl;
 }
 
-let tasks = [];
-
-
-
-// AWS'den task'ları getir
 async function loadTasks() {
     try {
         const response = await fetch(API_URL, {
             headers: {
-                "Authorization": `Bearer ${getAccessToken()}`
+                Authorization: `Bearer ${getAccessToken()}`
             }
         });
 
@@ -124,25 +128,81 @@ async function loadTasks() {
             throw new Error("Failed to load tasks");
         }
 
-        const data = await response.json();
-
-        tasks = data;
+        tasks = await response.json();
 
         renderTasks();
-
     } catch (error) {
         console.error("Error loading tasks:", error);
     }
 }
 
+function updateStats() {
+    const completedTasks = tasks.filter(task => task.completed).length;
+    const activeTasks = tasks.length - completedTasks;
 
-// Task'ları ekrana çiz
+    totalCount.textContent = tasks.length;
+    activeCount.textContent = activeTasks;
+    completedCount.textContent = completedTasks;
+
+    if (currentFilter === "all") {
+        taskCount.textContent = `${tasks.length} tasks`;
+    } else if (currentFilter === "active") {
+        taskCount.textContent = `${activeTasks} active`;
+    } else {
+        taskCount.textContent = `${completedTasks} completed`;
+    }
+}
+
+function getFilteredTasks() {
+    if (currentFilter === "active") {
+        return tasks.filter(task => !task.completed);
+    }
+
+    if (currentFilter === "completed") {
+        return tasks.filter(task => task.completed);
+    }
+
+    return tasks;
+}
+
 function renderTasks() {
     taskList.innerHTML = "";
 
-    tasks.forEach(function (task) {
+    const filteredTasks = getFilteredTasks();
 
+    if (filteredTasks.length === 0) {
+        const emptyState = document.createElement("li");
+        emptyState.className = "empty-state";
+
+        if (currentFilter === "completed") {
+            emptyState.textContent = "No completed tasks yet.";
+        } else if (currentFilter === "active") {
+            emptyState.textContent = "No active tasks. Nice work!";
+        } else {
+            emptyState.textContent = "No tasks yet. Add your first one above.";
+        }
+
+        taskList.appendChild(emptyState);
+        updateStats();
+        return;
+    }
+
+    filteredTasks.forEach(function (task) {
         const listItem = document.createElement("li");
+
+        if (task.completed) {
+            listItem.classList.add("task-completed");
+        }
+
+        const topRow = document.createElement("div");
+        topRow.className = "task-top";
+
+        const statusIcon = document.createElement("div");
+        statusIcon.className = task.completed
+            ? "task-status completed-status"
+            : "task-status active-status";
+
+        statusIcon.textContent = task.completed ? "✓" : "⌛";
 
         const taskSpan = document.createElement("span");
         taskSpan.textContent = task.text;
@@ -152,93 +212,89 @@ function renderTasks() {
             taskSpan.classList.add("task-text-completed");
         }
 
+        topRow.appendChild(statusIcon);
+        topRow.appendChild(taskSpan);
 
-        // Done / Undo button
+        const actionRow = document.createElement("div");
+        actionRow.className = "task-actions";
+
         const doneButton = document.createElement("button");
-
-        doneButton.textContent =
-            task.completed ? "Undo" : "Done";
-
-        doneButton.classList.add("task-action");
+        doneButton.textContent = task.completed ? "↶ Undo" : "✓ Mark as done";
+        doneButton.className = "task-action primary-action";
 
         doneButton.addEventListener("click", async function () {
-    const newCompletedValue = !task.completed;
+            const newCompletedValue = !task.completed;
 
-    try {
-    const response = await fetch(`${API_URL}/${task.taskId}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${getAccessToken()}`
-        },
-        body: JSON.stringify({
-            completed: newCompletedValue
-        })
-    });
+            try {
+                const response = await fetch(
+                    `${API_URL}/${task.taskId}`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${getAccessToken()}`
+                        },
+                        body: JSON.stringify({
+                            completed: newCompletedValue
+                        })
+                    }
+                );
 
-        if (!response.ok) {
-            throw new Error("Failed to update task");
-        }
+                if (!response.ok) {
+                    throw new Error("Failed to update task");
+                }
 
-        const updatedTask = await response.json();
+                const updatedTask = await response.json();
 
-        task.completed = updatedTask.completed;
+                task.completed = updatedTask.completed;
 
-        renderTasks();
-
-    } catch (error) {
-        console.error("Error updating task:", error);
-    }
-});
-
-
-        // Delete button
-        const deleteButton = document.createElement("button");
-
-        deleteButton.textContent = "Delete";
-
-        deleteButton.addEventListener("click", async function () {
-    try {
-        const response = await fetch(`${API_URL}/${task.taskId}`, {
-    method: "DELETE",
-    headers: {
-        "Authorization": `Bearer ${getAccessToken()}`
-    }
-});
-
-        if (!response.ok) {
-            throw new Error("Failed to delete task");
-        }
-
-        tasks = tasks.filter(function (item) {
-            return item.taskId !== task.taskId;
+                renderTasks();
+            } catch (error) {
+                console.error("Error updating task:", error);
+            }
         });
 
-        renderTasks();
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.className = "delete-button";
 
-    } catch (error) {
-        console.error("Error deleting task:", error);
-    }
-});
+        deleteButton.addEventListener("click", async function () {
+            try {
+                const response = await fetch(
+                    `${API_URL}/${task.taskId}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${getAccessToken()}`
+                        }
+                    }
+                );
 
+                if (!response.ok) {
+                    throw new Error("Failed to delete task");
+                }
 
-        listItem.appendChild(taskSpan);
-        listItem.appendChild(doneButton);
-        listItem.appendChild(deleteButton);
+                tasks = tasks.filter(
+                    item => item.taskId !== task.taskId
+                );
+
+                renderTasks();
+            } catch (error) {
+                console.error("Error deleting task:", error);
+            }
+        });
+
+        actionRow.appendChild(doneButton);
+        actionRow.appendChild(deleteButton);
+
+        listItem.appendChild(topRow);
+        listItem.appendChild(actionRow);
 
         taskList.appendChild(listItem);
     });
 
-
-    // Task sayıları
-    const completedTasks = tasks.filter(function (task) {
-        return task.completed;
-    }).length;
-
-    taskCount.textContent =
-        `Total: ${tasks.length} | Completed: ${completedTasks}`;
+    updateStats();
 }
-
 
 async function addTask() {
     const taskText = taskInput.value.trim();
@@ -248,20 +304,23 @@ async function addTask() {
     }
 
     const newTask = {
-    taskId: Date.now().toString(),
-    text: taskText,
-    completed: false
-};
+        taskId: Date.now().toString(),
+        text: taskText,
+        completed: false
+    };
 
     try {
+        addTaskButton.disabled = true;
+        addTaskButton.textContent = "Adding...";
+
         const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${getAccessToken()}`
-    },
-    body: JSON.stringify(newTask)
-});
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${getAccessToken()}`
+            },
+            body: JSON.stringify(newTask)
+        });
 
         if (!response.ok) {
             throw new Error("Failed to create task");
@@ -271,27 +330,35 @@ async function addTask() {
 
         tasks.push(createdTask);
 
-        renderTasks();
-
         taskInput.value = "";
 
+        renderTasks();
     } catch (error) {
         console.error("Error creating task:", error);
+    } finally {
+        addTaskButton.disabled = false;
+        addTaskButton.textContent = "Add Task";
     }
 }
 
+navItems.forEach(function (navItem) {
+    navItem.addEventListener("click", function () {
+        navItems.forEach(item => item.classList.remove("active"));
 
-// Add Task button
+        navItem.classList.add("active");
+
+        currentFilter = navItem.dataset.filter;
+
+        renderTasks();
+    });
+});
+
 addTaskButton.addEventListener("click", addTask);
 
-
-// Enter ile task ekleme
 taskInput.addEventListener("keydown", function (event) {
-
     if (event.key === "Enter") {
         addTask();
     }
-
 });
 
 logoutButton.addEventListener("click", logout);
@@ -310,4 +377,3 @@ async function startApp() {
 }
 
 startApp();
-

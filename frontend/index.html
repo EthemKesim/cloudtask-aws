@@ -22,18 +22,18 @@
                 </div>
 
                 <nav class="sidebar-nav">
-                    <button class="nav-item active">
-                        <span>✓</span>
+                    <button class="nav-item active" data-filter="all">
+                        <span class="nav-icon">⌂</span>
                         My Tasks
                     </button>
 
-                    <button class="nav-item">
-                        <span>○</span>
+                    <button class="nav-item" data-filter="active">
+                        <span class="nav-icon">⌛</span>
                         Active
                     </button>
 
-                    <button class="nav-item">
-                        <span>✓</span>
+                    <button class="nav-item" data-filter="completed">
+                        <span class="nav-icon">✓</span>
                         Completed
                     </button>
                 </nav>
@@ -55,12 +55,27 @@
                     </p>
                 </div>
 
-                <div class="task-summary">
-                    <span id="taskCount">0 tasks</span>
+                <div class="stats">
+                    <div class="stat">
+                        <strong id="totalCount">0</strong>
+                        <span>Total</span>
+                    </div>
+
+                    <div class="stat">
+                        <strong id="activeCount">0</strong>
+                        <span>Active</span>
+                    </div>
+
+                    <div class="stat">
+                        <strong id="completedCount">0</strong>
+                        <span>Completed</span>
+                    </div>
                 </div>
             </header>
 
             <section class="add-task-card">
+                <div class="add-icon">+</div>
+
                 <input
                     type="text"
                     id="taskInput"
@@ -69,13 +84,14 @@
                 >
 
                 <button id="addTaskButton">
-                    + Add Task
+                    Add Task
                 </button>
             </section>
 
             <section class="tasks-section">
                 <div class="section-header">
                     <h3>Your tasks</h3>
+                    <span id="taskCount"></span>
                 </div>
 
                 <ul id="taskList" class="task-list"></ul>
