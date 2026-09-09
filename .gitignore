@@ -16,3 +16,8 @@ infrastructure/lambda_function.zip.venv/
 
 .venv/
 infrastructure/lambda_function.zip
+
+# Local AWS IAM/OIDC bootstrap files
+*-policy.json
+*-trust-policy.json
+github-oidc-trust-policy.json
