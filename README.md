@@ -8,6 +8,12 @@ CloudTask combines a lightweight sticky-wall task interface with a production-st
 
 ---
 
+## Application Preview
+
+![CloudTask Dashboard](docs/images/cloudtask-dashboard.png)
+
+---
+
 ## Overview
 
 CloudTask is built around a fully serverless architecture:
@@ -84,12 +90,6 @@ Users can:
 
 Completed tasks are visually crossed out on their sticky notes, while active tasks remain visible on the corkboard workspace.
 
-### Application Preview
-
-```markdown
-![CloudTask Dashboard](docs/images/cloudtask-dashboard.png)
-```
-
 ---
 
 ## Tech Stack
@@ -119,19 +119,15 @@ Terraform provisions and manages the core application infrastructure, including:
 CloudFront + S3
        │
        ├── Cognito
-       │
        ├── API Gateway
-       │
        ├── Lambda
-       │
        ├── DynamoDB
-       │
        └── CloudWatch + SNS
 ```
 
 Remote Terraform state is stored in Amazon S3.
 
-Before infrastructure changes are deployed, GitHub Actions performs formatting, initialization, validation, and planning.
+Infrastructure changes are validated before deployment:
 
 ```text
 terraform fmt
@@ -142,14 +138,16 @@ terraform validate
       ↓
 terraform plan
       ↓
-Manual Approval / Apply
+Terraform Apply
 ```
+
+This keeps the AWS infrastructure reproducible and reviewable through code.
 
 ---
 
 ## CI/CD
 
-CloudTask uses separate GitHub Actions workflows for infrastructure and application deployments.
+CloudTask uses GitHub Actions for infrastructure validation and application deployment.
 
 ### Development
 
@@ -167,7 +165,7 @@ Testing
 
 ### Production
 
-Production deployments are protected by a GitHub Environment approval gate.
+After DEV verification, production deployments pass through a protected GitHub Environment.
 
 ```text
 DEV Verified
@@ -181,7 +179,7 @@ AWS Production
 
 GitHub Actions authenticates to AWS through **OpenID Connect (OIDC)** and assumes dedicated IAM roles. This avoids storing permanent AWS access keys in GitHub.
 
-Separate roles are used for responsibilities such as:
+Separate deployment roles are used for:
 
 - Terraform CI
 - Terraform Apply
@@ -207,18 +205,18 @@ CloudTask maintains isolated development and production resources.
      No approval       Approval required
 ```
 
-This allows application and infrastructure changes to be verified before they reach production.
+Application and infrastructure changes can therefore be tested safely before reaching production.
 
 ---
 
 ## Security
 
-Security decisions are built into the architecture rather than added only at the application layer.
+Security is built into the architecture:
 
 - S3 public access is blocked
-- CloudFront accesses the frontend bucket through Origin Access Control
+- CloudFront accesses S3 through Origin Access Control
 - API endpoints require Cognito JWT authentication
-- OAuth 2.0 Authorization Code Flow with PKCE is used for browser authentication
+- OAuth 2.0 Authorization Code Flow with PKCE is used for authentication
 - Users can only access their own task data
 - Lambda uses IAM roles for AWS service access
 - GitHub Actions uses temporary AWS credentials through OIDC
@@ -300,7 +298,9 @@ cloudtask-aws/
 │       └── backend-deploy-dev.yml
 │
 ├── docs/
-│   └── architecture.md
+│   ├── architecture.md
+│   └── images/
+│       └── cloudtask-dashboard.png
 │
 └── README.md
 ```
@@ -326,7 +326,7 @@ The project provided hands-on experience with:
 - Production deployment protection
 - CloudWatch monitoring and alerting
 
-The main goal was not only to deploy an application, but to understand how the individual cloud, security, infrastructure, and deployment components work together.
+The goal was not only to deploy an application, but to understand how cloud infrastructure, security, authentication, monitoring, and CI/CD work together.
 
 ---
 
